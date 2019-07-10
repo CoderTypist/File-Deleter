@@ -33,7 +33,7 @@ int main(int argc, char*argv[]){
 
     if( NULL == file ){
         printf("Could not open %s\n\n", argv[1]);
-        return 1;
+        return 0;
     }
         
     if( argc == 3 ){
@@ -53,7 +53,6 @@ int main(int argc, char*argv[]){
 
 void printFileHex(FILE *file, int bytesPerLine){
 
-    
     if( NULL == file ){
         printf("\tWarning: viewFile.c: printFileHex(): FILE *file was NULL\n\n");
         exit(0);

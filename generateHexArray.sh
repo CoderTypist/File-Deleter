@@ -6,7 +6,8 @@ echo "" > hexArray.txt
 echo "Created by Christian Bargraser 7/6/2019"
 echo ""
 
-line="unsigned char hexPair[16][16] = {"
+echo "unsigned char hexPair[16][16] = {"
+echo "unsigned char hexPair[16][16] = {" > hexArray.txt
 
 for c1 in 0 1 2 3 4 5 6 7 8 9 A B C D E F; do
     for c2 in 0 1 2 3 4 5 6 7 8 9 A B C D E F; do
@@ -16,9 +17,9 @@ for c1 in 0 1 2 3 4 5 6 7 8 9 A B C D E F; do
 
         # prints hex pair
 
-        # first he pair in row
+        # first hex pair in row
         if [ "$i" -eq 0 ]; then
-            line="${line}{${pair}, "
+            line="{$pair, "
             i=$((i+1))
 
         # last hex pair in row
@@ -47,5 +48,4 @@ for c1 in 0 1 2 3 4 5 6 7 8 9 A B C D E F; do
     done
 done
 
-echo "" >> hexArray.txt
 echo ""
