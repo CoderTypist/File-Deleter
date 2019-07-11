@@ -62,12 +62,12 @@ void printFileHex(FILE *file, int bytesPerLine){
         bytesPerLine = DEFAULT;
     }
 
-    char c = fgetc(file);
+    unsigned char c = fgetc(file);
     int curByte = 0;
     unsigned int location = 0x0;
     unsigned int add = 0x1;
 
-    while( c != EOF ){
+    while( EOF != (char)c ){
         
         if( curByte == 0 ){
             printf("%08X    ", location);
