@@ -197,8 +197,6 @@ void randomizeBlocks(char *fileName, double numBlocks){
         // numBlocks = totalBytesInFile/bytesPerBlock
         // st_blocks is the number of 512 byte blocks
         numBlocks = (512*fileInfo.st_blocks)/bytesPerBlock;
-        printf("\nfilleInfo.st_blocks: %lf\n", (double)fileInfo.st_blocks);
-        printf("bytesPerBlocks: %lf\n", bytesPerBlock);
     }
 
     srand(time(0));
@@ -241,12 +239,4 @@ void usageInfo(){
     printf("./delFile -help\n");
     printf("Provides info on how to use delFile\n\n");
 }
-
-
-
-
-
-
-
-
 
