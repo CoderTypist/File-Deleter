@@ -18,13 +18,13 @@ int main(int argc, char*argv[]){
         
         printf("USAGE INFO:\n\n");
 
-        printf("./viewFile file.txt\n");
+        printf("./hexview file.txt\n");
         printf("Print hex contents of file\n\n");
 
-        printf("./viewFile file.txt bytesPerLine\n");
+        printf("./hexview file.txt bytesPerLine\n");
         printf("Prints bytesPerLine bytes on each line\n\n");
 
-        printf("./viewFile -help\n");
+        printf("./hexview -help\n");
         printf("View usage info\n\n");
 
         return 0;
