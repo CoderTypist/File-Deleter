@@ -22,7 +22,7 @@ Here is the question I asked on stackoverflow:
 https://stackoverflow.com/questions/56980104/does-fopenfile-w-write-to-a-new-block?noredirect=1#comment100497128_56980104
 
 
-USAGE
+USAGE:
 
 
 ./delFile -size <file_name>
@@ -61,7 +61,7 @@ hexview
 DESCRIPTION: Displays all bytes in a file in hex. It's basically my version of the hexdump utility.
 
 
-USAGE
+USAGE:
 
 
 ./hexview file.txt
