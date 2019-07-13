@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <errno.h>
 #define DEFAULT 10
 
-void printFileHex(FILE *file, int bytesPerLine);
+void printFileHex(char *fileName, int bytesPerLine);
 
 int main(int argc, char*argv[]){
     
@@ -27,35 +29,49 @@ int main(int argc, char*argv[]){
 
         return 0;
     }
-
-    FILE *file = NULL;
-    file = fopen(argv[1], "r");
-
-    if( NULL == file ){
-        printf("Could not open %s\n\n", argv[1]);
-        return 0;
-    }
-        
+  
+    // user specified bytes per line
     if( argc == 3 ){
-        printFileHex(file, atoi(argv[2]));
+        printFileHex(argv[1], atoi(argv[2]));
     }
-
+    
+    // user did not specify bytes per line
     else{
-        printFileHex(file, DEFAULT);
+        printFileHex(argv[1], DEFAULT);
     }
     
     printf("\n");
 
-    fclose(file);
-
     return 0;
 }
 
-void printFileHex(FILE *file, int bytesPerLine){
+/* My code originally said:
+ *
+ *     while ( EOF != (char)c )
+ *
+ * This worked, however, after I made delFile.c,
+ * the program would display less data than hexdump.
+ * This was because delFile could randomly generate a character
+ * that the condition in the while loop would interpret as EOF. 
+ * To fix this issue, I used stat to get the number of bytes in the file and loop
+ * that many times.
+ */
+
+void printFileHex(char *fileName, int bytesPerLine){
+
+    FILE *file = fopen(fileName, "r");
 
     if( NULL == file ){
-        printf("\tWarning: viewFile.c: printFileHex(): FILE *file was NULL\n\n");
-        exit(0);
+        printf("Could not open %s\n\n", fileName);
+        return;
+    }
+     
+    struct stat fileInfo;
+    int statReturn = stat(fileName, &fileInfo);
+
+    if( statReturn < 0 ){
+        printf("\n\n\tError calling stat()\n");
+        printf("\t\t%s\n\n", strerror(errno));
     }
 
     if( bytesPerLine <= 0 ){
@@ -63,27 +79,36 @@ void printFileHex(FILE *file, int bytesPerLine){
     }
 
     unsigned char c = fgetc(file);
-    int curByte = 0;
+    double curByteInFile = 0;
+    double curByteInLine = 0;
+    double bytesInFile = fileInfo.st_size;
     unsigned int location = 0x0;
     unsigned int add = 0x1;
 
-    while( EOF != (char)c ){
+    while( curByteInFile < bytesInFile ){
         
-        if( curByte == 0 ){
+        if( curByteInLine == 0 ){
             printf("%08X    ", location);
         }
         
         printf("%02X ", c);
-        curByte++;
+        curByteInFile++;
+        curByteInLine++;
         location += add;
 
-        if( curByte == bytesPerLine ){
-            curByte = 0;
+        if( curByteInLine == bytesPerLine ){
+            curByteInLine = 0;
             printf("\n");
         }
         
         c = fgetc(file);
     }
+    
+    if( 0 == curByteInFile ){
+        printf("The file is empty...");
+    }
+    
+    fclose(file);
 
     printf("\n");
 }
