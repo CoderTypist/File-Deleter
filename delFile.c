@@ -25,8 +25,8 @@ unsigned char hexPair[16][16] = {
 
 void usageInfo();
 void randomizeSize(char *fileName);
-void randomizeBytes(char *fileName, int bytesToRandomize);
-void randomizeBlocks(char *fileName, int numBlocks);
+void randomizeBytes(char *fileName, double bytesToRandomize);
+void randomizeBlocks(char *fileName, double numBlocks);
 
 int main(int argc, char*argv[]){
     
@@ -65,11 +65,11 @@ int main(int argc, char*argv[]){
     }
 
     else if( 0 == strcmp(argv[1], "-blocks") ){
-        // randomizeBlocks()
+        randomizeBlocks(argv[2], -1);
     }
 
     else if( 0 == strcmp(argv[1], "-nblocks") ){
-        // randomizeBlocks()
+        randomizeBlocks(argv[3], atoi(argv[2]));
     }
 
     else{
@@ -113,14 +113,13 @@ void randomizeSize(char *fileName){
         num = rand()%256;
         c = hexPair[num/16][num%16];
         fprintf(file, "%c", c);
-        // printf("%c", c);
         curByte++;
     }
 
     fclose(file);
 }
 
-void randomizeBytes(char *fileName, int bytesToRandomize){
+void randomizeBytes(char *fileName, double bytesToRandomize){
 
     struct stat fileInfo;
     int statReturn = stat(fileName, &fileInfo);
@@ -148,15 +147,79 @@ void randomizeBytes(char *fileName, int bytesToRandomize){
         num = rand()%256;
         c = hexPair[num/16][num%16];
         fprintf(file, "%c", c);
-        // printf("%c", c);
         curByte++;
     }
 
     fclose(file);
 }
 
-void randomizeBlocks(char *fileName, int numBlocks){
+// numBlocks is < 0 when you want to randmoize the exact number of blocks 
+// that the file contains
+void randomizeBlocks(char *fileName, double numBlocks){
+    
+    struct stat fileInfo;
+    int statReturn = stat(fileName, &fileInfo);
 
+    if( statReturn < 0 ){
+        printf("\n\n\tError calling stat()\n");
+        printf("\t\t%s\n\n", strerror(errno));
+        exit(0);
+    }
+    
+    FILE *file = fopen(fileName, "w");
+    if( NULL == file ){ \
+        printf("\n\n\tFailed to open %s\n\n", fileName);
+        exit(0);
+    }
+    
+    // if the user for some reason chose to randomize zero blocks
+    if( numBlocks == 0 ){
+        printf("\n\n\tWarning: You chose to randomize zero blocks.\n\n");
+        fclose(file);
+        return;
+    }
+    
+    double bytesPerBlock = fileInfo.st_blksize;
+        
+    // numBlocks is < 0 when when you want to randomize the exact number of blocks
+    // that the file contains
+    if( numBlocks < 0 ){
+        
+        double blocksInFile = fileInfo.st_blocks;
+        
+        // checks to see if the file is empty
+        if( blocksInFile == 0 ){
+            printf("\tWarning: %s is empty, no bytes were randomized\n", fileName);
+            printf("\n\tConsider using: ./delFile -nblocks <num_blocks_to_randomize> <file_name>\n\n");
+            return;
+        }
+        
+        // numBlocks = totalBytesInFile/bytesPerBlock
+        // st_blocks is the number of 512 byte blocks
+        numBlocks = (512*fileInfo.st_blocks)/bytesPerBlock;
+        printf("\nfilleInfo.st_blocks: %lf\n", (double)fileInfo.st_blocks);
+        printf("bytesPerBlocks: %lf\n", bytesPerBlock);
+    }
+
+    srand(time(0));
+    int num;
+    unsigned char c;
+    double curByte = 1;
+    double curBlock = 1;
+    int i;
+    
+    while( curBlock <= numBlocks ){
+        while( curByte <= bytesPerBlock ){
+            num = rand()%256;
+            c = hexPair[num/16][num%16];
+            fprintf(file, "%c", c);
+            curByte++;
+        }
+        curByte = 1;
+        curBlock++;
+    }
+
+    fclose(file);
 }
 
 void usageInfo(){
